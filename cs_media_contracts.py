@@ -14,6 +14,7 @@ import json  # для загрузки файлов JSON
 import math  # опционально - для вычисления количества полученных страниц
 import time  # опционально - чтобы измерять время работы скрипта
 
+LIMIT = 10 # Лимит на выдачу контрактов в случае, если их дикое количество (тогда бот просто не отвечает по сто лет)
 
 # ПОЛЯ, ИСПОЛЬЗУЕМЫЕ В СЛОВАРЯХ ДЛЯ КАЖДОГО ПОДХОДЯЩЕГО КОНТРАКТА
 CONTRACT_URL = 'contract_url'  # URL карточки контракта на "Госзатратах"
@@ -81,11 +82,12 @@ def get_contracts_by_inn(inn):
 
     all_media_contracts = list()  # Инициализация списка, куда будут собираться контракты, касающиеся СМИ
     for page in range(1, int(num_pages) + 1):
+        if len(all_media_contracts) >= LIMIT:
+            break
         # Цикл проходит по всем страницам с полученными контрактами
         target_url = url + '&page={}'.format(page)  # Вставка в запрос номера нужной страницы
         contracts = requests.get(target_url).json()['contracts']['data']  # Список всех контрактов на этой странице
         all_media_contracts.extend(filter_media_contracts(contracts))  # Добавить в список подходящие контракты
-    # print(len(all_media_contracts))
     return supplier_name, total, all_media_contracts
 
 
@@ -101,6 +103,8 @@ def filter_media_contracts(contracts):
     media_contracts = list()  # Инициализация списка, в который будут собираться релевантные контракты
     clearspending_base = 'https://clearspending.ru/contract/'  # Общее для всех начало URL карточек контрактов на ГЗ
     for contract in contracts:
+        if len(media_contracts) >= LIMIT:
+            break
         products = contract['products']  # список всех продуктов в контракте
         for product in products:
             okpd = product.get('OKPD', {}).get('code')  # Если поля с ОКПД нет, значение None
@@ -139,4 +143,6 @@ if __name__ == '__main__':
     # stop = time.time()
     # running_time =stop - start
     # print('running time:', running_time)
-    get_supplier_name(7826159654)
+    # get_supplier_name('7714072839')
+    # print(get_supplier_name('7714072839'))
+    print(get_contracts_by_inn('7714072839'))

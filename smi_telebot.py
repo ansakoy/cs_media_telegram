@@ -26,7 +26,7 @@ def start(bot, update):
            'Для запроса вам потребуется ИНН интересующего вас поставщика.\n' \
            '- /inn [ИНН поставщика] - ищет, заключенные с этим поставщиком, в которых ' \
            'содержится хотя бы один предмет, имеющий отношение к СМИ, и выдает информацию об этом предмете.\n' \
-           'Если у организации много контрактов, то поиск может занять некоторое время.'
+           'Бот показывает до 10 последних контрактов, имеющих отношение к СМИ.'
     chat_id = update.message.chat_id
     bot.send_message(chat_id=chat_id, text=text)
 
@@ -45,7 +45,7 @@ def write_response(data):
 
     text = u'Поставщик: {}\n'.format(supplier_name)
     text += u'Всего контрактов: {}.\n'.format(total)
-    text += u'Из них имеют отношение к СМИ: {}.\n'.format(len(media_contracts))
+    text += u'Вот {} из последних, имеющих отношение к СМИ.\n'.format(len(media_contracts))
     if len(media_contracts):
         text += u'\n'
         text += u'Предметы, имеющие отношение к СМИ: \n'
@@ -83,6 +83,7 @@ def inn(bot, update):
     # Отправляем ответ
     chat_id = update.message.chat_id
     bot.send_message(chat_id=chat_id, text=reply)
+
 
 
 if __name__ == '__main__':
